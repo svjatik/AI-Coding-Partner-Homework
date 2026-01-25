@@ -1,231 +1,188 @@
-# ▶️ How to Run the Application
+# How to Run the Application
 
-## 📋 Prerequisites
+This project includes two implementations. Choose one to run:
 
-Before running the application, make sure you have installed:
+---
+
+## Node.js Implementation (Express.js)
+
+### Prerequisites
 
 - **Node.js** (version 14 or higher) - [Download](https://nodejs.org/)
 - **npm** (comes with Node.js)
 
-### Verify Installation
-
+Verify installation:
 ```bash
 node --version
 npm --version
 ```
 
----
-
-## 🚀 Quick Start
-
-### Step 1: Navigate to Project Directory
+### Quick Start
 
 ```bash
-cd homework-1
-```
+# Navigate to Node.js directory
+cd nodejs
 
-### Step 2: Install Dependencies
-
-```bash
+# Install dependencies
 npm install
-```
 
-This will install Express.js and UUID packages required for the API.
-
-### Step 3: Start the Application
-
-```bash
+# Start the server
 npm start
 ```
 
-Or manually run:
-
+Or use the demo script:
 ```bash
-node src/index.js
+./nodejs/demo/run.sh
 ```
 
 ### Expected Output
 
 ```
-🏦 Banking Transactions API running on http://localhost:3000
-📝 API Documentation:
-   - POST /transactions - Create a transaction
-   - GET /transactions - List all transactions
-   - GET /transactions/:id - Get a transaction
-   - GET /accounts/:accountId/balance - Get account balance
-   - GET /accounts/:accountId/summary - Get account summary
-   - GET /transactions/export?format=csv - Export as CSV
-   - GET /health - Health check
+Banking Transactions API running on http://localhost:3000
 ```
 
 ---
 
-## 🧪 Testing the API
+## Python Implementation (FastAPI)
 
-### Option 1: Using cURL (Command Line)
+### Prerequisites
 
-Test the health endpoint:
+- **Python 3.8+** - [Download](https://www.python.org/)
+- **pip** (comes with Python)
 
+Verify installation:
+```bash
+python3 --version
+pip3 --version
+```
+
+### Quick Start
+
+```bash
+# Navigate to Python directory
+cd python
+
+# Create virtual environment
+python3 -m venv venv
+
+# Activate virtual environment
+source venv/bin/activate  # macOS/Linux
+# venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the server
+uvicorn src.main:app --host 0.0.0.0 --port 3000 --reload
+```
+
+Or use the demo script:
+```bash
+./python/demo/run.sh
+```
+
+### Expected Output
+
+```
+INFO:     Uvicorn running on http://0.0.0.0:3000 (Press CTRL+C to quit)
+INFO:     Started reloader process
+```
+
+### API Documentation (Python Only)
+
+FastAPI provides automatic interactive documentation:
+- **Swagger UI**: http://localhost:3000/docs
+- **ReDoc**: http://localhost:3000/redoc
+
+---
+
+## Testing the API
+
+Both implementations run on port 3000 and provide identical endpoints.
+
+### Using cURL
+
+Test health endpoint:
 ```bash
 curl http://localhost:3000/health
 ```
 
-Create a transaction:
+Create a deposit:
+```bash
+curl -X POST http://localhost:3000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "toAccount": "ACC-12345",
+    "amount": 1000.00,
+    "currency": "USD",
+    "type": "deposit"
+  }'
+```
 
+Create a transfer:
 ```bash
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
   -d '{
     "fromAccount": "ACC-12345",
     "toAccount": "ACC-67890",
-    "amount": 100.50,
+    "amount": 150.50,
     "currency": "USD",
     "type": "transfer"
   }'
 ```
 
 Get all transactions:
-
 ```bash
 curl http://localhost:3000/transactions
 ```
 
-Get account balance:
-
-```bash
-curl http://localhost:3000/accounts/ACC-12345/balance
-```
-
-### Option 2: Using VS Code REST Client Extension
-
-Install the REST Client extension, then open [demo/sample-requests.http](demo/sample-requests.http) and click "Send Request" above each request.
-
-### Option 3: Using Postman
-
-1. Install [Postman](https://www.postman.com/)
-2. Create a new collection
-3. Import requests from [demo/sample-requests.http](demo/sample-requests.http)
-4. Test the endpoints
-
-### Option 4: Run Sample Script
-
-Make the script executable and run it:
-
-```bash
-chmod +x demo/sample-requests.sh
-./demo/sample-requests.sh
-```
-
-This will run a comprehensive test suite showing all API features.
-
----
-
-## 📝 API Examples
-
-### Create a Transfer
-
-```bash
-curl -X POST http://localhost:3000/transactions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fromAccount": "ACC-11111",
-    "toAccount": "ACC-22222",
-    "amount": 250.75,
-    "currency": "USD",
-    "type": "transfer"
-  }'
-```
-
-**Response (201 Created):**
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "fromAccount": "ACC-11111",
-  "toAccount": "ACC-22222",
-  "amount": 250.75,
-  "currency": "USD",
-  "type": "transfer",
-  "timestamp": "2026-01-25T10:30:00.000Z",
-  "status": "completed"
-}
-```
-
-### Get Transactions with Filters
-
-Filter by account:
+Get transactions filtered by account:
 ```bash
 curl "http://localhost:3000/transactions?accountId=ACC-12345"
 ```
 
-Filter by type:
+Get account balance:
 ```bash
-curl "http://localhost:3000/transactions?type=transfer"
+curl http://localhost:3000/accounts/ACC-12345/balance
 ```
 
-Filter by date range:
-```bash
-curl "http://localhost:3000/transactions?from=2024-01-01&to=2026-12-31"
-```
-
-Combine filters:
-```bash
-curl "http://localhost:3000/transactions?accountId=ACC-12345&type=transfer&from=2024-01-01"
-```
-
-### Get Account Summary
-
+Get account summary:
 ```bash
 curl http://localhost:3000/accounts/ACC-12345/summary
 ```
 
-**Response:**
-```json
-{
-  "accountId": "ACC-12345",
-  "totalDeposits": 1000.00,
-  "totalWithdrawals": 250.75,
-  "numberOfTransactions": 3,
-  "mostRecentTransactionDate": "2026-01-25T10:30:00.000Z",
-  "currentBalance": 749.25
-}
+Calculate interest:
+```bash
+curl "http://localhost:3000/accounts/ACC-12345/interest?rate=0.05&days=30"
 ```
 
-### Export Transactions as CSV
-
+Export as CSV:
 ```bash
-curl "http://localhost:3000/transactions/export?format=csv" > transactions.csv
+curl "http://localhost:3000/transactions/export?format=csv"
+```
+
+### Using VS Code REST Client
+
+Open the appropriate file and click "Send Request":
+- Node.js: `nodejs/demo/sample-requests.http`
+- Python: `python/demo/sample-requests.http`
+
+### Run Sample Scripts
+
+Node.js:
+```bash
+./nodejs/demo/sample-requests.sh
+```
+
+Python:
+```bash
+./python/demo/sample-requests.sh
 ```
 
 ---
 
-## ❌ Validation Examples
-
-### Invalid Amount (Negative)
-
-```bash
-curl -X POST http://localhost:3000/transactions \
-  -H "Content-Type: application/json" \
-  -d '{
-    "fromAccount": "ACC-12345",
-    "toAccount": "ACC-67890",
-    "amount": -100,
-    "currency": "USD",
-    "type": "transfer"
-  }'
-```
-
-**Response (400 Bad Request):**
-```json
-{
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "amount",
-      "message": "Amount must be a positive number"
-    }
-  ]
-}
-```
+## Validation Examples
 
 ### Invalid Account Format
 
@@ -233,25 +190,37 @@ curl -X POST http://localhost:3000/transactions \
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "fromAccount": "INVALID",
-    "toAccount": "ACC-67890",
+    "toAccount": "INVALID",
     "amount": 100,
     "currency": "USD",
-    "type": "transfer"
+    "type": "deposit"
   }'
 ```
 
-**Response (400 Bad Request):**
+Response (400 Bad Request):
 ```json
 {
   "error": "Validation failed",
   "details": [
     {
-      "field": "fromAccount",
-      "message": "Account number must follow format ACC-XXXXX (where X is alphanumeric)"
+      "field": "toAccount",
+      "message": "Account must follow format ACC-XXXXX (5 alphanumeric characters)"
     }
   ]
 }
+```
+
+### Negative Amount
+
+```bash
+curl -X POST http://localhost:3000/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "toAccount": "ACC-12345",
+    "amount": -100,
+    "currency": "USD",
+    "type": "deposit"
+  }'
 ```
 
 ### Invalid Currency
@@ -260,98 +229,56 @@ curl -X POST http://localhost:3000/transactions \
 curl -X POST http://localhost:3000/transactions \
   -H "Content-Type: application/json" \
   -d '{
-    "fromAccount": "ACC-12345",
-    "toAccount": "ACC-67890",
+    "toAccount": "ACC-12345",
     "amount": 100,
-    "currency": "XYZ",
-    "type": "transfer"
+    "currency": "INVALID",
+    "type": "deposit"
   }'
 ```
 
-**Response (400 Bad Request):**
-```json
-{
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "currency",
-      "message": "Invalid currency code. Use valid ISO 4217 codes (e.g., USD, EUR, GBP)"
-    }
-  ]
-}
-```
+---
+
+## Stopping the Application
+
+Press `Ctrl + C` in your terminal.
 
 ---
 
-## 🛑 Stopping the Application
-
-Press `Ctrl + C` in your terminal to stop the running API server.
-
----
-
-## 📦 Project Structure
-
-```
-homework-1/
-├── package.json           # Node.js dependencies
-├── .gitignore            # Git ignore file
-├── README.md             # Project documentation
-├── HOWTORUN.md          # This file
-├── src/
-│   ├── index.js          # Main application entry
-│   ├── routes.js         # API route handlers
-│   ├── transaction.js    # Transaction model & logic
-│   └── validators.js     # Validation utilities
-└── demo/
-    ├── run.sh            # Startup script
-    ├── sample-requests.sh # Test script with cURL
-    ├── sample-requests.http # REST Client format
-    └── sample-data.json  # Sample data
-```
-
----
-
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Port Already in Use
 
-If port 3000 is already in use, you can specify a different port:
-
+Node.js:
 ```bash
 PORT=3001 npm start
 ```
 
-### Node Modules Not Installed
+Python:
+```bash
+uvicorn src.main:app --port 3001
+```
 
-Make sure to run:
+### Permission Denied on Scripts
 
 ```bash
+chmod +x nodejs/demo/run.sh nodejs/demo/sample-requests.sh
+chmod +x python/demo/run.sh python/demo/sample-requests.sh
+```
+
+### Python Virtual Environment Issues
+
+```bash
+# Remove and recreate
+rm -rf venv
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Node Modules Not Found
+
+```bash
+cd nodejs
+rm -rf node_modules
 npm install
 ```
-
-### Permission Denied on run.sh
-
-Make the script executable:
-
-```bash
-chmod +x demo/run.sh
-chmod +x demo/sample-requests.sh
-```
-
-### EACCES Error
-
-If you get permission errors on macOS/Linux, use sudo:
-
-```bash
-sudo npm install
-sudo npm start
-```
-
----
-
-## 📞 Support
-
-For issues or questions, refer to:
-- [README.md](README.md) - Project overview and features
-- [TASKS.md](TASKS.md) - Assignment requirements
-- Source code comments in `src/` directory

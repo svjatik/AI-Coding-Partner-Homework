@@ -57,22 +57,8 @@ router.get('/', (req, res) => {
   res.status(200).json(result);
 });
 
-// GET /transactions/:id - Get a specific transaction by ID
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const transaction = getTransactionById(id);
-
-  if (!transaction) {
-    return res.status(404).json({
-      error: 'Transaction not found',
-      id
-    });
-  }
-
-  res.status(200).json(transaction);
-});
-
 // GET /transactions/export - Export transactions as CSV (Option C feature)
+// NOTE: This route must be defined before /:id to avoid matching "export" as an ID
 router.get('/export', (req, res) => {
   const { format } = req.query;
 
@@ -103,6 +89,21 @@ router.get('/export', (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="transactions.csv"');
   res.send(csv);
+});
+
+// GET /transactions/:id - Get a specific transaction by ID
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+  const transaction = getTransactionById(id);
+
+  if (!transaction) {
+    return res.status(404).json({
+      error: 'Transaction not found',
+      id
+    });
+  }
+
+  res.status(200).json(transaction);
 });
 
 module.exports = router;

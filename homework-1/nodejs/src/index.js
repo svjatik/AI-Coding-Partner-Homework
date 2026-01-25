@@ -35,17 +35,19 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🏦 Banking Transactions API running on http://localhost:${PORT}`);
-  console.log(`📝 API Documentation:`);
-  console.log(`   - POST /transactions - Create a transaction`);
-  console.log(`   - GET /transactions - List all transactions`);
-  console.log(`   - GET /transactions/:id - Get a transaction`);
-  console.log(`   - GET /accounts/:accountId/balance - Get account balance`);
-  console.log(`   - GET /accounts/:accountId/summary - Get account summary`);
-  console.log(`   - GET /transactions/export?format=csv - Export as CSV`);
-  console.log(`   - GET /health - Health check`);
-});
+// Start server only if not in test mode
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🏦 Banking Transactions API running on http://localhost:${PORT}`);
+    console.log(`📝 API Documentation:`);
+    console.log(`   - POST /transactions - Create a transaction`);
+    console.log(`   - GET /transactions - List all transactions`);
+    console.log(`   - GET /transactions/:id - Get a transaction`);
+    console.log(`   - GET /accounts/:accountId/balance - Get account balance`);
+    console.log(`   - GET /accounts/:accountId/summary - Get account summary`);
+    console.log(`   - GET /transactions/export?format=csv - Export as CSV`);
+    console.log(`   - GET /health - Health check`);
+  });
+}
 
 module.exports = app;

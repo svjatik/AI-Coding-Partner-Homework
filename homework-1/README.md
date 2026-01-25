@@ -1,61 +1,107 @@
-# 🏦 Homework 1: Banking Transactions API
+# Banking Transactions API
 
 > **Student Name**: Sviatoslav Glushchenko
 > **Date Submitted**: 25.01.2026
-> **AI Tools Used**: GitHub Copilot
+> **AI Tools Used**: GitHub Copilot, Claude Code
 
 ---
 
-## 📋 Project Overview
+## Project Overview
 
-This project implements a comprehensive REST API for banking transactions using Node.js and Express.js. The API supports creating, retrieving, and filtering transactions with robust validation and multiple features for account management and reporting.
+This project implements a comprehensive REST API for banking transactions in **two technology stacks**:
+
+1. **Node.js** with Express.js
+2. **Python** with FastAPI
+
+Both implementations provide identical functionality and API endpoints, allowing comparison of AI-assisted development across different technology stacks.
 
 ### Key Features Implemented
 
-#### ✅ **Core Features (Task 1-3)**
-- ✨ **Transaction Management**: Create, retrieve, and list transactions
-- 🔍 **Advanced Filtering**: Filter by account, type, and date range
-- ✅ **Robust Validation**: Comprehensive validation for amounts, accounts, currencies, and transaction types
-- 💰 **Account Management**: Track balances and transaction history per account
+#### Core Features (Task 1-3)
+- **Transaction Management**: Create, retrieve, and list transactions
+- **Advanced Filtering**: Filter by account, type, and date range
+- **Robust Validation**: Comprehensive validation for amounts, accounts, currencies, and transaction types
+- **Account Management**: Track balances and transaction history per account
 
-#### 🌟 **Additional Features (Task 4)**
+#### Additional Features (Task 4)
 
 1. **Transaction Summary Endpoint** (Option A)
    - `GET /accounts/:accountId/summary`
    - Returns total deposits, withdrawals, transaction count, and recent activity
 
-2. **Transaction Export** (Option C)
+2. **Simple Interest Calculation** (Option B)
+   - `GET /accounts/:accountId/interest?rate=0.05&days=30`
+   - Calculate simple interest on current balance
+
+3. **Transaction Export** (Option C)
    - `GET /transactions/export?format=csv`
    - Export all transactions in CSV format for reporting
 
 ---
 
-## 🏗️ Architecture & Technology Stack
-
-- **Runtime**: Node.js
-- **Framework**: Express.js (REST API)
-- **Storage**: In-memory (JavaScript arrays and objects)
-- **Validation**: Custom validation module with comprehensive rules
-- **UUID**: Used for unique transaction IDs
-
-### Project Structure
+## Project Structure
 
 ```
-src/
-├── index.js           # Main application entry point
-├── routes.js          # API endpoint handlers
-├── transaction.js     # Transaction model and business logic
-└── validators.js      # Validation utilities
-demo/
-├── run.sh            # Script to start the application
-├── sample-requests.sh # Bash script with sample API calls
-├── sample-requests.http # REST Client format for testing
-└── sample-data.json  # Sample transaction data
+homework-1/
+├── README.md                    # This file
+├── HOWTORUN.md                 # Detailed run instructions
+├── TASKS.md                    # Assignment requirements
+├── .gitignore                  # Git ignore rules
+├── docs/
+│   └── screenshots/            # Screenshots of API and AI tools
+│
+├── nodejs/                     # Node.js Implementation
+│   ├── package.json           # Dependencies
+│   ├── src/
+│   │   ├── index.js          # Main entry point
+│   │   ├── routes.js         # Transaction routes
+│   │   ├── accountRoutes.js  # Account routes
+│   │   ├── transaction.js    # Business logic & storage
+│   │   └── validators.js     # Validation utilities
+│   └── demo/
+│       ├── run.sh            # Startup script
+│       ├── sample-requests.sh
+│       ├── sample-requests.http
+│       └── sample-data.json
+│
+└── python/                     # Python Implementation
+    ├── requirements.txt       # Dependencies
+    ├── src/
+    │   ├── main.py           # FastAPI application
+    │   ├── models.py         # Pydantic models
+    │   ├── validators.py     # Validation utilities
+    │   ├── routes/
+    │   │   ├── transactions.py
+    │   │   └── accounts.py
+    │   └── services/
+    │       └── transaction_service.py
+    └── demo/
+        ├── run.sh            # Startup script
+        ├── sample-requests.sh
+        ├── sample-requests.http
+        └── sample-data.json
 ```
 
 ---
 
-## 📋 Implemented Endpoints
+## Technology Stacks
+
+### Node.js Implementation
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Storage**: In-memory (JavaScript arrays/objects)
+- **UUID**: uuid package for transaction IDs
+
+### Python Implementation
+- **Runtime**: Python 3.8+
+- **Framework**: FastAPI
+- **Models**: Pydantic for validation
+- **Server**: Uvicorn ASGI server
+- **Storage**: In-memory (Python lists/dicts)
+
+---
+
+## API Endpoints
 
 ### Transaction Endpoints
 
@@ -72,24 +118,26 @@ demo/
 |--------|----------|-------------|
 | `GET` | `/accounts/:accountId/balance` | Get account balance |
 | `GET` | `/accounts/:accountId/summary` | Get account summary with statistics |
+| `GET` | `/accounts/:accountId/interest` | Calculate simple interest |
 
 ### System Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/health` | API health check |
+| `GET` | `/docs` | API documentation (Python only) |
 
 ---
 
-## ✅ Validation Rules Implemented
+## Validation Rules
 
 ### Transaction Validation
-- ✓ Amount must be positive
-- ✓ Amount must have maximum 2 decimal places
-- ✓ Account format: `ACC-XXXXX` (where X is alphanumeric)
-- ✓ Currency must be valid ISO 4217 code (USD, EUR, GBP, JPY, etc.)
-- ✓ Transaction type must be: `deposit`, `withdrawal`, or `transfer`
-- ✓ From and To accounts must differ for transfers
+- Amount must be positive
+- Amount must have maximum 2 decimal places
+- Account format: `ACC-XXXXX` (where X is alphanumeric uppercase)
+- Currency must be valid ISO 4217 code (USD, EUR, GBP, JPY, etc.)
+- Transaction type must be: `deposit`, `withdrawal`, or `transfer`
+- From and To accounts must differ for transfers
 
 ### Error Response Format
 ```json
@@ -104,20 +152,20 @@ demo/
 
 ---
 
-## 🔍 Query Filters
+## Query Filters
 
-The `GET /transactions` endpoint supports multiple filters that can be combined:
+The `GET /transactions` endpoint supports multiple filters:
 
 - `?accountId=ACC-12345` - Filter by account
 - `?type=transfer` - Filter by transaction type
 - `?from=2024-01-01` - Start date (ISO 8601)
 - `?to=2024-12-31` - End date (ISO 8601)
 
-Example: `GET /transactions?accountId=ACC-12345&type=transfer&from=2024-01-01`
+Example: `GET /transactions?accountId=ACC-12345&type=transfer`
 
 ---
 
-## 📊 Data Models
+## Data Models
 
 ### Transaction Object
 ```json
@@ -147,27 +195,22 @@ Example: `GET /transactions?accountId=ACC-12345&type=transfer&from=2024-01-01`
 
 ---
 
-## 🤖 AI-Assisted Development Process
+## AI-Assisted Development
 
-This project was developed with assistance from GitHub Copilot, which helped with:
+This project was developed using two AI coding assistants:
 
-1. **Code Structure**: Generating the initial project skeleton and module organization
-2. **Validation Logic**: Creating comprehensive validation rules and error handling
-3. **API Routes**: Building RESTful endpoints with proper HTTP status codes
-4. **Error Handling**: Implementing consistent error response patterns
-5. **Documentation**: Generating inline code comments and API documentation
+### GitHub Copilot (Node.js Implementation)
+- Code structure and module organization
+- Validation logic and error handling
+- RESTful endpoint implementation
+- Documentation and inline comments
 
-**Key Prompts Used:**
-- "Create a banking API with transaction management"
-- "Add validation for transaction data"
-- "Implement filtering for transactions"
-- "Add account summary endpoint"
-- "Export transactions as CSV"
+### Claude Code (Python Implementation)
+- FastAPI application architecture
+- Pydantic model definitions
+- Service layer implementation
+- Comprehensive validation
 
 ---
 
-<div align="center">
-
 *This project was completed as part of the AI-Assisted Development course.*
-
-</div>

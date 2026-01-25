@@ -35,7 +35,7 @@ Content-Type: application/json
 }
 
 ### Get all transactions
-GET http://localhost:3000/transactions HTTP/1.1
+GET v HTTP/1.1
 
 ### Get transactions for specific account
 GET http://localhost:3000/transactions?accountId=ACC-12345 HTTP/1.1

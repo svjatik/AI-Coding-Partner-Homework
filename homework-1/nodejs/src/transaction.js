@@ -140,11 +140,21 @@ function getAccountSummary(accountId) {
   };
 }
 
+/**
+ * Resets all storage (for testing)
+ */
+function resetStorage() {
+  transactions.length = 0;
+  Object.keys(accountBalances).forEach(key => delete accountBalances[key]);
+}
+
 module.exports = {
   createTransaction,
   getTransactions,
   getTransactionById,
   getAccountBalance,
   getAccountSummary,
-  transactions
+  transactions,
+  accountBalances,
+  resetStorage
 };
