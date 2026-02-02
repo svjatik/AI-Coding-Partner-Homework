@@ -49,6 +49,9 @@ temp/
 *.tmp
 *.temp
 
+# Practice folder
+practice/
+
 # OS generated files
 .DS_Store
 .DS_Store?
