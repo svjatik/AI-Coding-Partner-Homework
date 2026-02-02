@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tickets>
+    <CreateTicketRequest>
+        <customerId>C201</customerId>
+        <customerEmail>xml1@example.com</customerEmail>
+        <customerName>XML User 1</customerName>
+        <subject>Password reset issue</subject>
+        <description>Cannot reset my password. The reset link is not working correctly.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>URGENT</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C202</customerId>
+        <customerEmail>xml2@example.com</customerEmail>
+        <customerName>XML User 2</customerName>
+        <subject>Application error</subject>
+        <description>Getting error message when trying to save data. The application crashes frequently.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>HIGH</priority>
+        <source>EMAIL</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C203</customerId>
+        <customerEmail>xml3@example.com</customerEmail>
+        <customerName>XML User 3</customerName>
+        <subject>Billing question</subject>
+        <description>I need clarification on the charges on my invoice for this month.</description>
+        <category>BILLING_QUESTION</category>
+        <priority>MEDIUM</priority>
+        <source>PHONE</source>
+        <browser>Safari</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C204</customerId>
+        <customerEmail>xml4@example.com</customerEmail>
+        <customerName>XML User 4</customerName>
+        <subject>New feature suggestion</subject>
+        <description>Would like to suggest adding a calendar view feature for better visualization.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>LOW</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>TABLET</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C205</customerId>
+        <customerEmail>xml5@example.com</customerEmail>
+        <customerName>XML User 5</customerName>
+        <subject>Bug in calculation</subject>
+        <description>The calculation module shows incorrect results for complex formulas.</description>
+        <category>BUG_REPORT</category>
+        <priority>HIGH</priority>
+        <source>API</source>
+        <browser>Edge</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C206</customerId>
+        <customerEmail>xml6@example.com</customerEmail>
+        <customerName>XML User 6</customerName>
+        <subject>Account access denied</subject>
+        <description>Cannot access my account. Getting access denied error message.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>URGENT</priority>
+        <source>CHAT</source>
+        <browser>Chrome</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C207</customerId>
+        <customerEmail>xml7@example.com</customerEmail>
+        <customerName>XML User 7</customerName>
+        <subject>Performance issue</subject>
+        <description>The system is very slow during peak hours. Performance needs improvement.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>MEDIUM</priority>
+        <source>WEB_FORM</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C208</customerId>
+        <customerEmail>xml8@example.com</customerEmail>
+        <customerName>XML User 8</customerName>
+        <subject>Payment method update</subject>
+        <description>Need help updating my credit card payment method for subscription.</description>
+        <category>BILLING_QUESTION</category>
+        <priority>LOW</priority>
+        <source>EMAIL</source>
+        <browser>Safari</browser>
+        <deviceType>TABLET</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C209</customerId>
+        <customerEmail>xml9@example.com</customerEmail>
+        <customerName>XML User 9</customerName>
+        <subject>Add notification feature</subject>
+        <description>Please add email notifications for important system events.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>MEDIUM</priority>
+        <source>API</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C210</customerId>
+        <customerEmail>xml10@example.com</customerEmail>
+        <customerName>XML User 10</customerName>
+        <subject>Critical system outage</subject>
+        <description>System is completely down. Cannot access any features. This is critical.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>URGENT</priority>
+        <source>PHONE</source>
+        <browser>Edge</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C211</customerId>
+        <customerEmail>xml11@example.com</customerEmail>
+        <customerName>XML User 11</customerName>
+        <subject>Login authentication problem</subject>
+        <description>Two-factor authentication is not working. Cannot login to my account.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>HIGH</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C212</customerId>
+        <customerEmail>xml12@example.com</customerEmail>
+        <customerName>XML User 12</customerName>
+        <subject>Filter bug</subject>
+        <description>The filter functionality is broken and does not apply correctly.</description>
+        <category>BUG_REPORT</category>
+        <priority>MEDIUM</priority>
+        <source>EMAIL</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C213</customerId>
+        <customerEmail>xml13@example.com</customerEmail>
+        <customerName>XML User 13</customerName>
+        <subject>Request for refund</subject>
+        <description>I would like to request a refund for my cancelled subscription.</description>
+        <category>BILLING_QUESTION</category>
+        <priority>HIGH</priority>
+        <source>CHAT</source>
+        <browser>Safari</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C214</customerId>
+        <customerEmail>xml14@example.com</customerEmail>
+        <customerName>XML User 14</customerName>
+        <subject>Enhancement request</subject>
+        <description>Would like to have customizable dashboard widgets for better user experience.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>LOW</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C215</customerId>
+        <customerEmail>xml15@example.com</customerEmail>
+        <customerName>XML User 15</customerName>
+        <subject>Memory leak defect</subject>
+        <description>Application has a memory leak causing crashes after extended use.</description>
+        <category>BUG_REPORT</category>
+        <priority>URGENT</priority>
+        <source>API</source>
+        <browser>Edge</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C216</customerId>
+        <customerEmail>xml16@example.com</customerEmail>
+        <customerName>XML User 16</customerName>
+        <subject>OAuth login failed</subject>
+        <description>Cannot authenticate using OAuth provider. Login fails consistently.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>HIGH</priority>
+        <source>EMAIL</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C217</customerId>
+        <customerEmail>xml17@example.com</customerEmail>
+        <customerName>XML User 17</customerName>
+        <subject>Upload timeout</subject>
+        <description>File upload times out for files larger than 10MB.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>MEDIUM</priority>
+        <source>WEB_FORM</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C218</customerId>
+        <customerEmail>xml18@example.com</customerEmail>
+        <customerName>XML User 18</customerName>
+        <subject>Incorrect invoice</subject>
+        <description>My invoice has incorrect tax calculations. Please review and correct.</description>
+        <category>BILLING_QUESTION</category>
+        <priority>MEDIUM</priority>
+        <source>PHONE</source>
+        <browser>Safari</browser>
+        <deviceType>TABLET</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C219</customerId>
+        <customerEmail>xml19@example.com</customerEmail>
+        <customerName>XML User 19</customerName>
+        <subject>API improvement needed</subject>
+        <description>Need pagination support in the API for better performance with large datasets.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>MEDIUM</priority>
+        <source>API</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C220</customerId>
+        <customerEmail>xml20@example.com</customerEmail>
+        <customerName>XML User 20</customerName>
+        <subject>Database error</subject>
+        <description>Getting database connection errors. This is affecting all operations.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>URGENT</priority>
+        <source>CHAT</source>
+        <browser>Edge</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C221</customerId>
+        <customerEmail>xml21@example.com</customerEmail>
+        <customerName>XML User 21</customerName>
+        <subject>Account locked out</subject>
+        <description>My account is locked after multiple failed password attempts.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>URGENT</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C222</customerId>
+        <customerEmail>xml22@example.com</customerEmail>
+        <customerName>XML User 22</customerName>
+        <subject>Slow query performance</subject>
+        <description>Database queries are running very slow causing timeouts.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>HIGH</priority>
+        <source>EMAIL</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C223</customerId>
+        <customerEmail>xml23@example.com</customerEmail>
+        <customerName>XML User 23</customerName>
+        <subject>Subscription pricing</subject>
+        <description>What are the pricing options for annual subscriptions?</description>
+        <category>BILLING_QUESTION</category>
+        <priority>LOW</priority>
+        <source>PHONE</source>
+        <browser>Safari</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C224</customerId>
+        <customerEmail>xml24@example.com</customerEmail>
+        <customerName>XML User 24</customerName>
+        <subject>Integration feature</subject>
+        <description>Need integration with third-party services for data synchronization.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>MEDIUM</priority>
+        <source>WEB_FORM</source>
+        <browser>Chrome</browser>
+        <deviceType>TABLET</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C225</customerId>
+        <customerEmail>xml25@example.com</customerEmail>
+        <customerName>XML User 25</customerName>
+        <subject>Validation bug</subject>
+        <description>Form validation is not working correctly and accepts invalid data.</description>
+        <category>BUG_REPORT</category>
+        <priority>HIGH</priority>
+        <source>API</source>
+        <browser>Edge</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C226</customerId>
+        <customerEmail>xml26@example.com</customerEmail>
+        <customerName>XML User 26</customerName>
+        <subject>Email verification</subject>
+        <description>Cannot verify my email address. The verification link has expired.</description>
+        <category>ACCOUNT_ACCESS</category>
+        <priority>MEDIUM</priority>
+        <source>EMAIL</source>
+        <browser>Chrome</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C227</customerId>
+        <customerEmail>xml27@example.com</customerEmail>
+        <customerName>XML User 27</customerName>
+        <subject>Network connectivity</subject>
+        <description>Experiencing frequent network disconnections when using the application.</description>
+        <category>TECHNICAL_ISSUE</category>
+        <priority>MEDIUM</priority>
+        <source>CHAT</source>
+        <browser>Firefox</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C228</customerId>
+        <customerEmail>xml28@example.com</customerEmail>
+        <customerName>XML User 28</customerName>
+        <subject>Discount code</subject>
+        <description>My discount code is not being applied to my subscription.</description>
+        <category>BILLING_QUESTION</category>
+        <priority>MEDIUM</priority>
+        <source>WEB_FORM</source>
+        <browser>Safari</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C229</customerId>
+        <customerEmail>xml29@example.com</customerEmail>
+        <customerName>XML User 29</customerName>
+        <subject>Reporting enhancement</subject>
+        <description>Would like to have scheduled report generation and email delivery.</description>
+        <category>FEATURE_REQUEST</category>
+        <priority>LOW</priority>
+        <source>API</source>
+        <browser>Chrome</browser>
+        <deviceType>DESKTOP</deviceType>
+    </CreateTicketRequest>
+    <CreateTicketRequest>
+        <customerId>C230</customerId>
+        <customerEmail>xml30@example.com</customerEmail>
+        <customerName>XML User 30</customerName>
+        <subject>UI rendering issue</subject>
+        <description>User interface elements are not rendering correctly on mobile devices.</description>
+        <category>BUG_REPORT</category>
+        <priority>MEDIUM</priority>
+        <source>PHONE</source>
+        <browser>Edge</browser>
+        <deviceType>MOBILE</deviceType>
+    </CreateTicketRequest>
+</tickets>
