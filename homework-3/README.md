@@ -2,7 +2,7 @@
 
 ## Student & Task Summary
 
-**Student**: Serhii Glushchenko
+**Student**: Sviatoslav Glushchenko
 
 **Task**: Design a comprehensive specification package for a Virtual Card Lifecycle Management System, a finance-oriented application that enables users to create, manage, and monitor virtual payment cards in a regulated banking environment. This homework focuses on specification-driven design without implementation—producing detailed documentation that an AI coding partner could use to build a compliant, secure, and production-ready system.
 
