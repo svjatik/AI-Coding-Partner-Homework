@@ -4,356 +4,117 @@
 
 **Student**: Sviatoslav Glushchenko
 
-**Task**: Design a comprehensive specification package for a Virtual Card Lifecycle Management System, a finance-oriented application that enables users to create, manage, and monitor virtual payment cards in a regulated banking environment. This homework focuses on specification-driven design without implementation—producing detailed documentation that an AI coding partner could use to build a compliant, secure, and production-ready system.
+**Task**: Design a specification package for a **Virtual Card Lifecycle Management System** — a finance-oriented application that enables users to create, manage, and monitor virtual payment cards in a regulated banking environment. No implementation required; only specification documents, agent rules, and a rationale README.
+
+### Deliverables
+
+| File | Purpose | Audience |
+|---|---|---|
+| `specification.md` | Full product spec: objectives, architecture diagrams, state machine, API endpoints, RBAC matrix, and 10 low-level implementation tasks | AI coding agent (implementer) |
+| `agents.md` | Tech stack, banking domain rules, code style, testing expectations, security/compliance constraints, common patterns with code examples | AI coding agent (reviewer/generator) |
+| `.claude/project-rules.md` | Critical rules (NEVER/ALWAYS), anti-patterns, code examples for correct vs. incorrect approaches, compliance checklist | Claude Code (real-time guidance) |
+| `README.md` | Rationale, design decisions, and industry best practices mapping | Human reviewer (instructor) |
+
+---
 
 ## Rationale
 
-### Why This Specification Approach
+### Design Decisions
 
-This specification was designed following a **top-down, compliance-first methodology** that prioritizes regulatory requirements and security constraints before technical implementation details. The rationale for this approach includes:
+This specification follows a **top-down, compliance-first methodology** where regulatory and security constraints shape the architecture before technical details are filled in. Below are the key design decisions and their reasoning.
 
-#### 1. **Regulatory Compliance as Foundation**
-Banking applications operate in heavily regulated environments. Rather than treating compliance as an afterthought, this specification embeds **PCI-DSS Level 1** and **GDPR** requirements from the outset. Every component—from data models to API endpoints—was designed with compliance in mind.
+| # | Decision | Rationale |
+|---|---|---|
+| 1 | **Compliance as foundation** | PCI-DSS and GDPR requirements are embedded from the outset — in data models, services, and API design. Retrofitting compliance is costly; baking it in ensures AI agents naturally produce compliant code. |
+| 2 | **State machine for card lifecycle** | The card lifecycle (PENDING → ACTIVE ↔ FROZEN → CANCELLED/EXPIRED) is modeled as a strict state machine with a Mermaid diagram and transition table. This eliminates ambiguity — AI agents generate validation logic that rejects invalid transitions, preventing bugs. |
+| 3 | **Security by default (prohibitive rules)** | Security requirements are mandatory, not optional. The spec explicitly prohibits insecure patterns (`float` for money, logging PAN, exposing stack traces). "Never do X" rules in `.claude/project-rules.md` prevent common FinTech vulnerabilities at generation time. |
+| 4 | **Granular task decomposition** | 10 low-level tasks, each with: prompt, target files, target functions, and detailed constraints. This maps directly to an AI coding workflow — each task is self-contained and executable without interpretation. |
+| 5 | **Audit-first architecture** | Every state-changing operation requires audit logging with before/after state JSON. Specified at the service layer (not infrastructure) so business logic and audit logic are coupled. Financial regulators require immutable trails — this makes it non-optional. |
+| 6 | **Decimal precision mandate** | `Decimal(19,4)` with `ROUND_HALF_UP` for all monetary amounts. A single float precision error can cause regulatory violations or financial loss. Enforced in all three documents. |
+| 7 | **Three-layer documentation** | `specification.md` = **what** to build, `agents.md` = **how** to build it, `.claude/project-rules.md` = **what to avoid**. Different AI agents (generators, reviewers, testers) need different context; separating concerns prevents information overload. |
 
-**Why**: Retrofitting compliance into an existing system is costly and error-prone. By making it foundational, AI agents implementing this spec will naturally produce compliant code.
+### Why This Structure Works for AI
 
-#### 2. **State Machine-Driven Design**
-The card lifecycle is modeled as a strict state machine (PENDING → ACTIVE ↔ FROZEN → CANCELLED) with explicitly defined valid transitions. This prevents invalid operations and ensures data integrity.
+The specification is designed to maximize AI agent effectiveness:
 
-**Why**: State machines eliminate ambiguity. AI agents can generate validation logic that rejects invalid state transitions, preventing bugs and ensuring auditability.
+- **Mermaid diagrams** in `specification.md` provide visual architecture and state machine context that AI agents can parse
+- **RBAC permission matrix** and **API endpoint table** provide unambiguous reference for authorization checks
+- **Code examples** in `agents.md` and `.claude/project-rules.md` show correct vs. incorrect patterns (e.g., `Decimal` vs. `float`, masked vs. raw PAN logging)
+- **Idempotency-Key patterns** are specified with Redis TTL, cache key format, and response caching — no room for interpretation
+- **Test naming conventions** (`test_<function>_<scenario>_<expected_result>`) guide AI to produce well-structured test suites
 
-#### 3. **Security by Default**
-Security requirements (field-level encryption, RBAC, audit logging) are specified as mandatory implementation notes rather than optional considerations. The specification prohibits insecure patterns (e.g., using `float` for money, logging sensitive data).
-
-**Why**: AI agents trained on security best practices need explicit guidance on what to avoid. "Never do X" rules prevent common vulnerabilities.
-
-#### 4. **Granular Task Decomposition**
-The specification breaks down the system into 10 low-level tasks, each with:
-- **What prompt to run**: Clear instruction for AI agent
-- **What file to create/update**: Concrete deliverable
-- **What function to create/update**: Specific code artifact
-- **What details to add**: Business rules and constraints
-
-**Why**: This structure maps directly to AI coding workflow. Each task is self-contained and executable without requiring interpretation or additional research.
-
-#### 5. **Audit-First Architecture**
-Every state-changing operation requires audit logging with before/after state. This is not optional—it's baked into the service layer specification.
-
-**Why**: Financial regulators require immutable audit trails. By specifying audit logging at the service layer (not infrastructure layer), we ensure business logic and audit logic are coupled.
-
-#### 6. **Type Safety and Monetary Precision**
-The specification mandates `Decimal` type for all monetary amounts and requires type hints on all functions. This prevents floating-point precision errors and enables static type checking.
-
-**Why**: Financial calculations demand precision. A single floating-point error can cause regulatory violations or financial loss. Type safety catches errors at development time, not runtime.
-
-#### 7. **Multi-Layered Guidance**
-The specification package includes three levels of guidance:
-- **specification.md**: What to build (product requirements)
-- **agents.md**: How to build it (technical standards, domain rules)
-- **.claude/project-rules.md**: What to avoid (common mistakes, anti-patterns)
-
-**Why**: Different AI agents (code generators, reviewers, testers) need different information. Separating concerns ensures each agent has the right context without information overload.
+---
 
 ## Industry Best Practices
 
-This specification incorporates established FinTech and banking industry best practices. Below is a comprehensive list of best practices and their specific locations in the specification documents.
+The table below maps each incorporated FinTech/banking best practice to its specific location(s) in the specification documents.
 
-### 1. PCI-DSS Compliance (Payment Card Industry Data Security Standard)
+### Quick Reference: Practice → Location Matrix
 
-**Practice**: Never store unencrypted cardholder data; use strong encryption (AES-256) for PAN, CVV, and sensitive fields.
+| # | Practice | Standard/Source | specification.md | agents.md | .claude/project-rules.md |
+|---|---|---|---|---|---|
+| 1 | **PCI-DSS card data encryption** | PCI-DSS Req. 3 | Implementation Notes; Task 6 (AES-256-GCM, encrypt PAN/CVV, key hierarchy) | Compliance Requirements → PCI-DSS Level 1; Data Protection | NEVER store unencrypted card data; Compliance Checklist |
+| 2 | **Immutable audit trails** | PCI-DSS Req. 10; SOX | Mid-Level Objectives; Task 7 (write-once storage, hash chain, 10-year retention) | Regulatory Requirements; Service Layer with Audit Example | ALWAYS log with correlation ID; Audit Logging Pattern |
+| 3 | **RBAC / Principle of Least Privilege** | NIST AC-6; PCI-DSS Req. 7 | RBAC Permission Matrix; Task 4 (4 roles, ownership validation) | Security Constraints → Auth & Authz; Secure Coding Principles | Authorization Checks code example |
+| 4 | **GDPR data minimization & subject rights** | GDPR Art. 5, 15-20 | Mid-Level Objectives; Task 1 (soft delete); Task 7 (DSAR, erasure, portability) | GDPR Compliance section (5 requirements) | Compliance Checklist → GDPR items |
+| 5 | **Idempotency for financial operations** | Industry standard | Implementation Notes; Task 2 (Redis, 24h TTL); Task 5 (Idempotency-Key header) | Business Logic Rules → Idempotency | ALWAYS implement idempotency; Idempotency Pattern |
+| 6 | **Decimal precision for money** | IEEE 854; Industry | Implementation Notes (Decimal(19,4)); Task 1 (DB column type) | Monetary Calculations (CRITICAL rule + code example) | NEVER use float for money; Monetary Calculations example |
+| 7 | **Input validation & parameterized queries** | OWASP Top 10 (A03) | Implementation Notes; Task 5 (Pydantic validation rules) | Security Constraints → Data Protection; Secure Coding Principles | ALWAYS validate; Input Validation Pydantic example |
+| 8 | **Rate limiting** | OWASP (API4) | Implementation Notes; Task 3 (60/min reads); Task 5 (rate limit headers) | Rate Limiting & DDoS Protection (sliding window) | HTTP 429 in Quick Reference |
+| 9 | **MFA for sensitive operations** | PCI-DSS Req. 8; NIST 800-63B | Mid-Level Objectives; Task 4 (cancel, limit increase) | Auth & Authz → MFA requirement | Authentication Flow |
+| 10 | **Data masking (PAN tokenization)** | PCI-DSS Req. 3.4 | Task 3 (`mask_card_number`); Task 6 (never log decrypted data) | PCI-DSS → mask in logs/responses; Logging Standards | NEVER log sensitive data; Masking code example |
+| 11 | **Separation of duties** | PCI-DSS Req. 6; SOX | RBAC Matrix (SUPPORT_AGENT masked, COMPLIANCE_OFFICER audit-only) | KYC verification; Role definitions | Authorization Checks |
+| 12 | **Error handling without info disclosure** | OWASP (A01) | Implementation Notes; Task 5 (standardized error response schema) | Error Handling → no stack traces; Fail Securely | NEVER expose internal errors; Error Handler example |
+| 13 | **Defense in depth** | NIST SP 800-53 | Multiple security tasks (4: Auth, 6: Encryption, 7: Audit) | Secure Coding Principles → Defense in Depth | ALWAYS rules cover multiple security layers |
+| 14 | **Concurrency control** | Industry standard | Task 2 (`SELECT FOR UPDATE`, row-level locking) | Repository Pattern example | Concurrent Operations (wrong vs. correct) |
+| 15 | **Multi-layered testing** | Industry standard | Implementation Notes (90% cov); Task 8 (unit/integration/security/compliance) | Testing Expectations (4 test types, coverage thresholds) | Test naming convention; Test file organization |
+| 16 | **Encryption key rotation** | PCI-DSS Req. 3.6 | Task 6 (quarterly rotation, dual-key transition, HSM hierarchy) | Secrets Management → rotation schedule | Environment Variables reference |
+| 17 | **Structured logging with correlation IDs** | 12-Factor App | Task 5 (request logging fields); Task 7 (audit context fields) | Logging Standards (JSON, levels, what to log/not log) | ALWAYS log with correlation ID |
+| 18 | **API versioning & OpenAPI docs** | REST best practices | API Endpoints table (`/api/v1/`); Task 9 (OpenAPI 3.0) | Tech Stack | N/A |
+| 19 | **Database design** (UUIDs, indexes, soft delete) | Industry standard | Task 1 (UUIDs, composite indexes, check constraints, soft delete) | Naming Conventions → DB Models; Performance → indexes | Database Models code example |
+| 20 | **Monitoring & alerting** | SRE principles | Task 10 (Prometheus, alert thresholds); Task 7 (compliance alerts) | Performance SLAs (200ms reads, 500ms writes) | N/A |
 
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Data Privacy: Implement field-level encryption for PAN, CVV, and cardholder data per PCI-DSS requirements"
-  - Task 6 (Security Implementation) → "Use AES-256-GCM for encryption; store IV with ciphertext"
-  - Task 6 → "Encrypt fields: card_number, cvv, cardholder_name, billing_address"
-- **agents.md**:
-  - Domain Rules: Banking & FinTech → Compliance Requirements → PCI-DSS Level 1 Compliance (lines 10-16)
-  - Security Constraints → Data Protection → "Encrypt all sensitive data at rest and in transit"
-- **.claude/project-rules.md**:
-  - Critical Rules → "NEVER store unencrypted card data"
-  - Compliance Checklist → "PCI-DSS: Card data encrypted?"
+### Detailed Highlights
 
-### 2. Audit Trail and Immutability
+Below are the three most impactful practices with deeper explanation of how they are woven through the specification.
 
-**Practice**: Maintain immutable, tamper-proof audit logs for all financial operations with 10-year retention.
+#### PCI-DSS Card Data Encryption (Practice #1)
 
-**Where in Spec**:
-- **specification.md**:
-  - Mid-Level Objectives → "Audit & Monitoring: Maintain immutable audit logs for all operations"
-  - Implementation Notes → "Audit Requirements: Log all operations with timestamp, user ID, IP address, action type, before/after state"
-  - Task 7 (Audit Logging) → "Implement write-once storage: audit logs cannot be modified or deleted"
-  - Task 7 → "Create hash chain: each log entry includes hash of previous entry to detect tampering"
-- **agents.md**:
-  - Domain Rules → Compliance Requirements → Regulatory Requirements → "Maintain immutable audit trails for 10 years"
-  - Common Patterns → Service Layer with Audit Example (lines 213-243)
-- **.claude/project-rules.md**:
-  - Critical Rules → "ALWAYS log with correlation ID"
-  - Audit Logging Pattern example
+This practice is the most pervasive constraint in the specification. It affects:
+- **Data model design** (Task 1): `card_number_encrypted` and `cvv_encrypted` fields instead of plaintext; encrypted data format defined as `version:key_id:iv:ciphertext:tag`
+- **Service layer** (Task 2): All card operations interact with `EncryptionService`; decrypted data never leaves the service boundary
+- **API responses** (Task 3, 5): `mask_card_number()` function ensures only last 4 digits are ever returned
+- **Logging** (Task 7): Audit logs capture card_id references but never decrypted PAN/CVV
+- **Key management** (Task 6): HSM-backed master keys, quarterly rotation, dual-key transition period
+- **Agent rules**: Both `agents.md` and `.claude/project-rules.md` include explicit "NEVER" rules with code examples showing correct vs. incorrect handling
 
-### 3. Principle of Least Privilege (PoLP)
+#### State Machine Validation (Practice #2, #14)
 
-**Practice**: Grant users minimum necessary permissions; implement role-based access control (RBAC).
+The card lifecycle is the core business domain. Rather than relying on ad-hoc `if/else` checks:
+- **specification.md** includes a **Mermaid state diagram** for visual clarity and an **allowed transitions table** for unambiguous reference
+- **Task 2** mandates `validate_state_transition(current, target)` as a dedicated function
+- **agents.md** includes a wrong-vs-correct code example for state management
+- **.claude/project-rules.md** lists this in the "ALWAYS" rules with explicit anti-pattern (updating status without validation)
+- **Task 8** requires testing invalid state transitions as specific test cases
 
-**Where in Spec**:
-- **specification.md**:
-  - Mid-Level Objectives → "Security & Access Control: Enforce role-based access control (RBAC)"
-  - Task 4 (Authentication and Authorization) → "Define roles: CARDHOLDER, ACCOUNT_ADMIN, SUPPORT_AGENT, COMPLIANCE_OFFICER"
-  - Task 4 → "CARDHOLDER can only access their own cards; validate user_id matches card.user_id"
-- **agents.md**:
-  - Domain Rules → Security Constraints → Authentication & Authorization → "Enforce role-based access control (RBAC)"
-  - Security Best Practices → Secure Coding Principles → "Least Privilege: Grant minimum necessary permissions"
-- **.claude/project-rules.md**:
-  - Security Requirements → Authorization Checks example (verify ownership)
+#### Audit-First Architecture (Practice #2, #17)
 
-### 4. Data Minimization and Privacy (GDPR)
-
-**Practice**: Collect only necessary data; support data subject rights (access, erasure, portability); implement retention policies.
-
-**Where in Spec**:
-- **specification.md**:
-  - Mid-Level Objectives → "Compliance & Regulatory: GDPR-compliant data retention"
-  - Implementation Notes → "Data Privacy: Implement field-level encryption for PAN, CVV, cardholder data per PCI-DSS requirements"
-  - Task 1 (Database Schema) → "Implement soft delete pattern (deleted_at field) for GDPR compliance"
-  - Task 7 (Audit Logging) → "GDPR compliance: support data subject access requests (DSAR), right to erasure, data portability"
-- **agents.md**:
-  - Domain Rules → Compliance Requirements → GDPR Compliance (lines 18-23)
-  - Compliance section → "Implement data minimization: collect only necessary data"
-- **.claude/project-rules.md**:
-  - Compliance Checklist → "GDPR: Personal data minimized? Retention policy applied?"
-
-### 5. Idempotency for Financial Operations
-
-**Practice**: Ensure all state-changing operations are idempotent to prevent duplicate transactions.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Idempotency: All state-changing operations must be idempotent using idempotency keys"
-  - Task 2 (Card Management Service) → "Store idempotency keys with 24-hour expiration in Redis"
-  - Task 5 (API Endpoints) → "Implement idempotency: Accept Idempotency-Key header for state-changing operations"
-- **agents.md**:
-  - Domain Rules → Business Logic Rules → Idempotency (lines 60-64)
-  - Code example showing idempotency implementation
-- **.claude/project-rules.md**:
-  - Critical Rules → "ALWAYS implement idempotency"
-  - Idempotency Pattern code example
-
-### 6. Decimal Precision for Monetary Calculations
-
-**Practice**: Never use floating-point arithmetic for money; use fixed-precision decimal types.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Monetary Calculations: Use Decimal type for all monetary amounts; never use floating-point arithmetic"
-  - Task 1 (Database Schema) → "All monetary fields must use Decimal(19,4) type"
-- **agents.md**:
-  - Domain Rules → Business Logic Rules → Monetary Calculations (lines 50-58)
-  - "CRITICAL: Always use `decimal.Decimal` for all monetary amounts"
-  - Code example showing correct Decimal usage
-- **.claude/project-rules.md**:
-  - Critical Rules → "NEVER use float for money"
-  - Monetary Calculations code example (correct vs. wrong)
-
-### 7. Input Validation and Sanitization
-
-**Practice**: Validate and sanitize all user inputs to prevent injection attacks; use parameterized queries.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Input Validation: Sanitize and validate all inputs; enforce strict type checking"
-  - Task 5 (API Endpoints) → "Input validation rules" with specific constraints
-- **agents.md**:
-  - Domain Rules → Security Constraints → Data Protection → "Implement input validation and sanitization"
-  - Security Best Practices → Secure Coding Principles → "Input Validation: Validate and sanitize all user inputs"
-- **.claude/project-rules.md**:
-  - Critical Rules → "ALWAYS validate state transitions"
-  - Input Validation code example using Pydantic
-
-### 8. Rate Limiting and DDoS Protection
-
-**Practice**: Implement rate limiting to prevent abuse and denial-of-service attacks.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Rate Limiting: Implement per-user and per-IP rate limits to prevent abuse"
-  - Task 3 (Transaction Service) → "Implement rate limiting: 60 requests/minute per user for transaction queries"
-  - Task 5 (API Endpoints) → "Include rate limit headers: X-RateLimit-Limit, X-RateLimit-Remaining"
-- **agents.md**:
-  - Domain Rules → Security Constraints → Rate Limiting & DDoS Protection (lines 44-48)
-  - "Implement per-user rate limits: 60 requests/minute for reads, 10 requests/minute for writes"
-- **.claude/project-rules.md**:
-  - Quick Reference → HTTP Status Codes → `429 Too Many Requests`
-
-### 9. Multi-Factor Authentication (MFA) for Sensitive Operations
-
-**Practice**: Require additional authentication for high-risk operations (card cancellation, limit increases).
-
-**Where in Spec**:
-- **specification.md**:
-  - Mid-Level Objectives → "Security & Access Control: multi-factor authentication for sensitive operations"
-  - Task 4 (Authentication and Authorization) → "Require MFA for: card.cancel, card.update_limits (if increasing limits)"
-- **agents.md**:
-  - Domain Rules → Security Constraints → Authentication & Authorization → "Require MFA for sensitive operations"
-- **.claude/project-rules.md**:
-  - Security Requirements → Authentication Flow
-
-### 10. Data Masking and Tokenization
-
-**Practice**: Mask sensitive data in logs and API responses; show only partial information (last 4 digits).
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Audit Requirements: never expose internal system details or sensitive data in error messages"
-  - Task 3 (Transaction Service) → "Mask full card number except last 4 digits in all API responses"
-  - Task 3 → Function `mask_card_number(card_number)` - Masks PAN for display
-  - Task 6 (Security Implementation) → "Never log or display decrypted card data; use masked versions only"
-- **agents.md**:
-  - Domain Rules → Compliance Requirements → PCI-DSS → "Mask card numbers in logs and API responses (show only last 4 digits)"
-  - Logging Standards → "Never log: PAN, CVV, passwords, encryption keys"
-- **.claude/project-rules.md**:
-  - Critical Rules → "NEVER log sensitive data"
-  - Card Number Masking code example
-
-### 11. Separation of Duties and Access Control
-
-**Practice**: Different roles have different access levels; support staff see masked data; compliance officers have full audit access.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 4 (Authentication and Authorization) → "SUPPORT_AGENT can view cards but receives masked data (partial PAN, no CVV)"
-  - Task 4 → "COMPLIANCE_OFFICER (full audit access)"
-- **agents.md**:
-  - Domain Rules → Compliance Requirements → Regulatory Requirements → "Enforce Know Your Customer (KYC) verification"
-- **.claude/project-rules.md**:
-  - Security Requirements → Authorization Checks
-
-### 12. Error Handling Without Information Disclosure
-
-**Practice**: Return generic error messages to users; log detailed errors internally; never expose stack traces or database errors.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Error Handling: Return standardized error codes; never expose internal system details or sensitive data in error messages"
-  - Task 5 (API Endpoints) → "Standardized error responses: {error_code, message, details, trace_id}"
-- **agents.md**:
-  - Code Style & Conventions → Error Handling → "Never expose stack traces in production responses"
-  - Security Best Practices → Secure Coding Principles → "Fail Securely: Default deny; fail closed"
-- **.claude/project-rules.md**:
-  - Critical Rules → "NEVER expose internal errors"
-  - Error Handling Pattern code example
-
-### 13. Defense in Depth
-
-**Practice**: Implement multiple layers of security (authentication, authorization, encryption, audit logging).
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes spans multiple security layers: authentication, encryption, audit, input validation
-  - Multiple tasks dedicated to different security aspects (Task 4: Auth, Task 6: Encryption, Task 7: Audit)
-- **agents.md**:
-  - Security Best Practices → Secure Coding Principles → "Defense in Depth: Implement multiple layers of security"
-- **.claude/project-rules.md**:
-  - ALWAYS Do These section lists multiple security layers
-
-### 14. Concurrency Control and Race Condition Prevention
-
-**Practice**: Use database row-level locking (SELECT FOR UPDATE) to prevent race conditions in concurrent operations.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 2 (Card Management Service) → "Use database transactions with row-level locking (SELECT FOR UPDATE) to prevent race conditions"
-  - Task 8 (Testing Suite) → "Test concurrent operations and race conditions"
-- **agents.md**:
-  - Common Patterns → Repository Pattern Example shows transaction usage
-- **.claude/project-rules.md**:
-  - Common Mistakes to Avoid → Concurrent Operations code example
-
-### 15. Comprehensive Testing Strategy
-
-**Practice**: Multi-layered testing including unit, integration, security, and compliance tests with high coverage requirements.
-
-**Where in Spec**:
-- **specification.md**:
-  - Implementation Notes → "Testing: Include unit, integration, security, and compliance tests with minimum 90% code coverage"
-  - Task 8 (Testing Suite) → Detailed breakdown of test types and requirements
-- **agents.md**:
-  - Testing Expectations (lines 127-181) → Comprehensive testing guidelines
-  - Coverage Requirements → "Minimum overall coverage: 80%, Critical paths: 90%"
-- **.claude/project-rules.md**:
-  - Testing Requirements section with test organization and naming conventions
-
-### 16. Key Rotation and Cryptographic Best Practices
-
-**Practice**: Regular encryption key rotation with dual-key decryption during transition periods.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 6 (Security Implementation) → "Key rotation: re-encrypt data in background process; maintain dual-key decryption during transition"
-  - Task 6 → "Implement key hierarchy: Master Key (HSM-stored) → Data Encryption Keys (rotated quarterly)"
-- **agents.md**:
-  - Security Best Practices → Secrets Management → "Rotate secrets regularly (encryption keys quarterly, JWT keys monthly)"
-- **.claude/project-rules.md**:
-  - Quick Reference → Environment Variables section
-
-### 17. Structured Logging with Correlation IDs
-
-**Practice**: Use structured JSON logging with correlation IDs for request tracing; include context without sensitive data.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 5 (API Endpoints) → "Log all requests: method, path, user_id, ip_address, request_id, response_status, duration"
-  - Task 7 (Audit Logging) → "Capture context: user_id, session_id, ip_address, user_agent, timestamp, operation_duration"
-- **agents.md**:
-  - Code Style & Conventions → Logging Standards (lines 103-113)
-  - "Include correlation_id in all logs for request tracing"
-- **.claude/project-rules.md**:
-  - Critical Rules → "ALWAYS log with correlation ID"
-  - Logging Sensitive Data example
-
-### 18. API Versioning and Documentation
-
-**Practice**: Version APIs (e.g., /api/v1/); provide OpenAPI documentation with examples and security schemes.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 5 (API Endpoints) → "POST /api/v1/cards" (versioned endpoints)
-  - Task 5 → "OpenAPI documentation: include examples, schema definitions, security requirements"
-  - Task 9 (Documentation) → "OpenAPI 3.0 specification: complete schema definitions, security schemes"
-- **agents.md**:
-  - Tech Stack → Testing → "httpx for API testing"
-
-### 19. Database Design Best Practices
-
-**Practice**: Use UUIDs for primary keys, composite indexes for performance, check constraints for data integrity, soft deletes for compliance.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 1 (Database Schema) → "Use UUID for all primary keys"
-  - Task 1 → "Add composite indexes on (user_id, status) and (card_id, timestamp) for performance"
-  - Task 1 → "Implement check constraints for positive amounts and valid date ranges"
-  - Task 1 → "Implement soft delete pattern (deleted_at field) for GDPR compliance"
-- **agents.md**:
-  - Naming Conventions → Database Models example shows best practices
-  - Performance Expectations → Optimization Guidelines → "Use database indexes on frequently queried columns"
-- **.claude/project-rules.md**:
-  - Database Models code example
-
-### 20. Monitoring and Alerting
-
-**Practice**: Implement comprehensive monitoring with Prometheus metrics; set up alerts for critical thresholds.
-
-**Where in Spec**:
-- **specification.md**:
-  - Task 10 (Deployment Configuration) → "Monitoring: Prometheus metrics (request rate, error rate, latency percentiles)"
-  - Task 10 → "Alerts: API error rate >5%, database connection pool exhausted, memory usage >80%"
-  - Task 7 (Audit Logging) → "Alert compliance team on: unusual data access patterns, bulk exports"
-- **agents.md**:
-  - Performance Expectations → Response Time SLAs with specific latency targets
+Financial regulations (PCI-DSS Req. 10, SOX Section 302) require complete audit trails:
+- **specification.md** Task 7 specifies a **hash chain** where each audit entry includes the hash of the previous entry, creating a tamper-evident log
+- The `AuditLog` model (Task 1) captures before/after state as JSON, enabling forensic reconstruction
+- Every service method in Task 2 includes audit logging as a mandatory step, not a decorator or afterthought
+- **agents.md** provides a complete code example of the audit pattern in `CardService.freeze_card()`
+- Retention policies are differentiated: transactions (7 years), audit logs (10 years), personal data (GDPR request-dependent)
 
 ---
 
 ## Summary
 
-This specification package demonstrates how to translate high-level business requirements ("build a virtual card system") into detailed, actionable guidance that an AI coding partner can execute. By embedding industry best practices at every level—from architectural decisions to code-level anti-patterns—the specification ensures that the resulting implementation will be secure, compliant, maintainable, and production-ready.
+This specification package translates a broad requirement ("build a virtual card system for a regulated environment") into actionable, AI-executable guidance across three complementary documents. The approach prioritizes:
 
-The three-document structure (specification.md, agents.md, project-rules.md) provides complementary views: **what** to build, **how** to build it, and **what not to do**. This approach maximizes the likelihood that an AI agent will produce high-quality code that meets stringent FinTech standards without requiring extensive human review or refactoring.
+1. **Compliance by design** — PCI-DSS and GDPR constraints shape every layer
+2. **Unambiguous references** — Mermaid diagrams, RBAC matrix, API table, state transition table
+3. **Negative constraints** — explicit "NEVER do X" rules with code examples to prevent common FinTech pitfalls
+4. **Testable specification** — each practice maps to specific test types in Task 8
+
+The three-document structure ensures AI agents receive the right level of guidance whether they are generating code (`specification.md`), enforcing standards (`agents.md`), or avoiding anti-patterns (`.claude/project-rules.md`).
