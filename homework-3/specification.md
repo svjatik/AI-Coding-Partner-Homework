@@ -12,37 +12,150 @@
 - **Transaction Management**: Enable real-time transaction viewing, filtering, and export with spend tracking against configured limits
 - **Audit & Monitoring**: Maintain immutable audit logs for all operations with real-time fraud detection alerts and compliance reporting
 
+## System Architecture
+
+```mermaid
+flowchart TB
+    Client[Client Application] --> |HTTPS/TLS 1.3| Gateway[API Gateway]
+    Gateway --> |JWT Validation| AuthMW[Auth Middleware]
+    AuthMW --> |RBAC Check| RBACMW[RBAC Middleware]
+    RBACMW --> API[REST API Layer - FastAPI]
+
+    API --> CardSvc[Card Service]
+    API --> TxnSvc[Transaction Service]
+    API --> AuditSvc[Audit Service]
+
+    CardSvc --> |State Machine| CardRepo[Card Repository]
+    CardSvc --> |Async| Processor[Card Processor Client]
+    CardSvc --> EncSvc[Encryption Service]
+    TxnSvc --> SpendTracker[Spend Tracker]
+    TxnSvc --> TxnRepo[Transaction Repository]
+
+    CardRepo --> DB[(PostgreSQL)]
+    TxnRepo --> DB
+    AuditSvc --> DB
+    SpendTracker --> Cache[(Redis)]
+    EncSvc --> Vault[Key Vault / HSM]
+
+    Processor --> |REST API| ExtProcessor[External Card Processor]
+
+    subgraph Security Layer
+        AuthMW
+        RBACMW
+        EncSvc
+        Vault
+    end
+
+    subgraph Business Logic
+        CardSvc
+        TxnSvc
+        AuditSvc
+        SpendTracker
+        Processor
+    end
+
+    subgraph Data Layer
+        CardRepo
+        TxnRepo
+        DB
+        Cache
+    end
+```
+
+## Card Lifecycle State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING : Card Requested
+    PENDING --> ACTIVE : Processor Confirms Issuance
+    ACTIVE --> FROZEN : User/Admin Freeze
+    FROZEN --> ACTIVE : User/Admin Unfreeze
+    ACTIVE --> CANCELLED : User Cancel / Admin Cancel
+    FROZEN --> CANCELLED : User Cancel / Admin Cancel
+    ACTIVE --> EXPIRED : Expiry Date Reached
+    FROZEN --> EXPIRED : Expiry Date Reached
+    CANCELLED --> [*]
+    EXPIRED --> [*]
+
+    note right of CANCELLED : Terminal state. Card data retained (soft delete) for compliance.
+    note right of EXPIRED : Terminal state. Triggered by system cron job.
+```
+
+### Allowed State Transitions
+
+| Current State | Allowed Target States | Trigger |
+|---|---|---|
+| PENDING | ACTIVE | Card processor confirms issuance |
+| ACTIVE | FROZEN, CANCELLED, EXPIRED | User action / system expiry |
+| FROZEN | ACTIVE, CANCELLED, EXPIRED | User action / system expiry |
+| CANCELLED | _(terminal)_ | N/A |
+| EXPIRED | _(terminal)_ | N/A |
+
+## API Endpoints Summary
+
+| Method | Endpoint | Description | Auth | Idempotent |
+|---|---|---|---|---|
+| `POST` | `/api/v1/cards` | Create a new virtual card | CARDHOLDER, ACCOUNT_ADMIN | Yes |
+| `GET` | `/api/v1/cards/{card_id}` | Get card details (masked PAN) | CARDHOLDER (own), SUPPORT_AGENT, ADMIN | No |
+| `POST` | `/api/v1/cards/{card_id}/freeze` | Freeze an active card | CARDHOLDER (own), ACCOUNT_ADMIN | Yes |
+| `POST` | `/api/v1/cards/{card_id}/unfreeze` | Unfreeze a frozen card | CARDHOLDER (own), ACCOUNT_ADMIN | Yes |
+| `PATCH` | `/api/v1/cards/{card_id}/limits` | Update spending limits | CARDHOLDER (own, MFA if increase), ADMIN | Yes |
+| `DELETE` | `/api/v1/cards/{card_id}` | Cancel card (soft delete) | CARDHOLDER (own, MFA), ACCOUNT_ADMIN | Yes |
+| `POST` | `/api/v1/cards/{card_id}/replace` | Issue replacement card | CARDHOLDER (own), ACCOUNT_ADMIN | Yes |
+| `GET` | `/api/v1/cards/{card_id}/transactions` | List transactions (paginated) | CARDHOLDER (own), SUPPORT_AGENT | No |
+| `GET` | `/api/v1/cards/{card_id}/transactions/{txn_id}` | Get single transaction detail | CARDHOLDER (own), SUPPORT_AGENT | No |
+| `GET` | `/api/v1/cards/{card_id}/transactions/export` | Export transactions (CSV/PDF) | CARDHOLDER (own) | No |
+| `GET` | `/api/v1/cards/{card_id}/spend-summary` | Get aggregated spend data | CARDHOLDER (own), ACCOUNT_ADMIN | No |
+
+## RBAC Permission Matrix
+
+| Permission | CARDHOLDER | ACCOUNT_ADMIN | SUPPORT_AGENT | COMPLIANCE_OFFICER |
+|---|---|---|---|---|
+| card.create | own | account-wide | - | - |
+| card.view | own | account-wide | all (masked) | all (audit only) |
+| card.freeze / unfreeze | own | account-wide | - | - |
+| card.cancel | own (MFA) | account-wide | - | - |
+| card.update_limits | own (MFA if increase) | account-wide | - | - |
+| transactions.view | own | account-wide | all (masked) | - |
+| transactions.export | own | account-wide | - | - |
+| audit.view | - | - | - | all |
+| audit.export | - | - | - | all |
+
 ## Implementation Notes
-- **Monetary Calculations**: Use Decimal type for all monetary amounts; never use floating-point arithmetic
-- **Data Privacy**: Implement field-level encryption for PAN (Primary Account Number), CVV, and cardholder data per PCI-DSS requirements
-- **Audit Requirements**: Log all operations with timestamp, user ID, IP address, action type, before/after state
+- **Monetary Calculations**: Use `Decimal(19,4)` for all monetary amounts; never use floating-point arithmetic; use `ROUND_HALF_UP`
+- **Data Privacy**: Implement field-level encryption (AES-256-GCM) for PAN, CVV, and cardholder data per PCI-DSS requirements
+- **Audit Requirements**: Log all operations with timestamp, user ID, IP address, action type, before/after state as JSON
 - **Error Handling**: Return standardized error codes; never expose internal system details or sensitive data in error messages
-- **Input Validation**: Sanitize and validate all inputs; enforce strict type checking and range validation for amounts
-- **Idempotency**: All state-changing operations must be idempotent using idempotency keys
-- **Rate Limiting**: Implement per-user and per-IP rate limits to prevent abuse
-- **Testing**: Include unit, integration, security, and compliance tests with minimum 90% code coverage
+- **Input Validation**: Sanitize and validate all inputs via Pydantic; enforce strict type checking and range validation for amounts
+- **Idempotency**: All state-changing operations must accept `Idempotency-Key` header; store keys in Redis with 24h TTL
+- **Rate Limiting**: Per-user (60 reads/min, 10 writes/min) and per-IP rate limits via Redis sliding window
+- **Testing**: Unit, integration, security, and compliance tests; minimum 90% coverage on critical paths, 80% overall
+- **Concurrency**: Use `SELECT FOR UPDATE` row-level locking for all state-changing card operations
 
 ## Context
 
 ### Beginning context
 - Empty project structure requiring full implementation
-- PostgreSQL database available for persistent storage
-- Redis available for caching and rate limiting
-- Authentication service available (OAuth 2.0 + JWT)
-- Encryption service available (AES-256-GCM)
+- PostgreSQL 15+ database available for persistent storage
+- Redis 7+ available for caching and rate limiting
+- Authentication service available (OAuth 2.0 + JWT with RS256)
+- Encryption service available (AES-256-GCM via `cryptography` library)
 - Audit logging service available
 - Third-party card processor API available (sandbox environment)
 
 ### Ending context
-- Complete virtual card management API with OpenAPI documentation
-- Database schema with proper indexes and constraints
-- Service layer implementing all business logic with state validations
-- Security middleware for authentication, authorization, and rate limiting
-- Comprehensive test suite (unit, integration, security, compliance)
-- Audit logging integrated for all operations
-- Deployment configuration (Docker, environment variables)
-- Runbook documentation for operations team
-- Compliance documentation (PCI-DSS attestation checklist)
+| Artifact | Path | Description |
+|---|---|---|
+| API application | `src/` | FastAPI app with all endpoints, services, models |
+| Database migrations | `migrations/` | Alembic migration files for PostgreSQL schema |
+| Test suite | `tests/` | Unit, integration, security, compliance tests |
+| API documentation | `openapi.yaml` | OpenAPI 3.0 specification |
+| Operations runbook | `docs/operations_runbook.md` | Deployment, monitoring, troubleshooting |
+| Compliance docs | `docs/compliance_checklist.md` | PCI-DSS / GDPR mapping |
+| Incident response | `docs/incident_response_plan.md` | Security breach procedures |
+| Deployment config | `Dockerfile`, `docker-compose.yml`, `k8s/` | Container and orchestration config |
+| CI/CD pipeline | `.github/workflows/ci-cd.yml` | Automated test, build, deploy |
+| Monitoring | `monitoring/prometheus.yml` | Metrics and alerting config |
 
 ## Low-Level Tasks
 

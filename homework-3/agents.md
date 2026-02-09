@@ -20,6 +20,46 @@
 - **Logging**: Structured JSON logging with python-json-logger
 - **Secrets Management**: Environment variables from secure vault
 
+## Request Flow
+
+The following sequence diagram shows how a typical card operation (e.g., freeze card) flows through the system layers.
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant GW as API Gateway
+    participant Auth as Auth Middleware
+    participant RBAC as RBAC Middleware
+    participant API as FastAPI Router
+    participant Svc as Card Service
+    participant Cache as Redis
+    participant DB as PostgreSQL
+    participant Audit as Audit Service
+    participant Enc as Encryption Service
+
+    C->>GW: POST /api/v1/cards/{id}/freeze (JWT + Idempotency-Key)
+    GW->>Auth: Validate JWT token
+    Auth->>RBAC: Check user role & card ownership
+    RBAC->>API: Request authorized
+
+    API->>Cache: Check Idempotency-Key
+    alt Already processed
+        Cache-->>API: Return cached response
+        API-->>C: 200 OK (cached)
+    else New request
+        API->>Svc: freeze_card(card_id, user_id, reason)
+        Svc->>DB: SELECT card FOR UPDATE (row lock)
+        DB-->>Svc: Card (status=ACTIVE)
+        Svc->>Svc: validate_state_transition(ACTIVE → FROZEN)
+        Svc->>Audit: log_audit_event(before_state)
+        Svc->>DB: UPDATE card SET status=FROZEN
+        Svc->>Audit: log_audit_event(after_state)
+        Svc-->>API: CardResponse
+        API->>Cache: Store response with Idempotency-Key (24h TTL)
+        API-->>C: 200 OK
+    end
+```
+
 ## Domain Rules: Banking & FinTech
 
 ### Compliance Requirements
