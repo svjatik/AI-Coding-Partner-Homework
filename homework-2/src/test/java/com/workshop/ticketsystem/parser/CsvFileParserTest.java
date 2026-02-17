@@ -26,8 +26,9 @@ class CsvFileParserTest {
 
     @Test
     void testParseValidCsv() throws Exception {
-        String csvContent = "customer_id,customer_email,customer_name,subject,description,category,priority,assigned_to,tags,source,browser,device_type\n" +
-                "C001,test@example.com,Test User,Test Subject,This is a test ticket description for testing.,BUG_REPORT,HIGH,admin,bug;urgent,EMAIL,Chrome,DESKTOP";
+        String csvContent = """
+                customer_id,customer_email,customer_name,subject,description,category,priority,assigned_to,tags,source,browser,device_type
+                C001,test@example.com,Test User,Test Subject,This is a test ticket description for testing.,BUG_REPORT,HIGH,admin,bug;urgent,EMAIL,Chrome,DESKTOP""";
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -39,7 +40,7 @@ class CsvFileParserTest {
         List<CreateTicketRequest> tickets = csvFileParser.parse(file);
 
         assertThat(tickets).hasSize(1);
-        CreateTicketRequest ticket = tickets.get(0);
+        CreateTicketRequest ticket = tickets.getFirst();
         assertThat(ticket.getCustomerId()).isEqualTo("C001");
         assertThat(ticket.getCustomerEmail()).isEqualTo("test@example.com");
         assertThat(ticket.getCustomerName()).isEqualTo("Test User");
@@ -56,8 +57,9 @@ class CsvFileParserTest {
 
     @Test
     void testParseWithMissingOptionalFields() throws Exception {
-        String csvContent = "customer_id,customer_email,customer_name,subject,description\n" +
-                "C002,test2@example.com,Test User 2,Test Subject 2,This is another test ticket description.";
+        String csvContent = """
+                customer_id,customer_email,customer_name,subject,description
+                C002,test2@example.com,Test User 2,Test Subject 2,This is another test ticket description.""";
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -69,7 +71,7 @@ class CsvFileParserTest {
         List<CreateTicketRequest> tickets = csvFileParser.parse(file);
 
         assertThat(tickets).hasSize(1);
-        CreateTicketRequest ticket = tickets.get(0);
+        CreateTicketRequest ticket = tickets.getFirst();
         assertThat(ticket.getCustomerId()).isEqualTo("C002");
         assertThat(ticket.getCustomerEmail()).isEqualTo("test2@example.com");
         assertThat(ticket.getCustomerName()).isEqualTo("Test User 2");
@@ -99,8 +101,9 @@ class CsvFileParserTest {
 
     @Test
     void testParseMalformedCsv() {
-        String csvContent = "customer_id,customer_email,customer_name,subject,description\n" +
-                "C001,test@example.com";
+        String csvContent = """
+                customer_id,customer_email,customer_name,subject,description
+                C001,test@example.com""";
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
@@ -116,8 +119,9 @@ class CsvFileParserTest {
 
     @Test
     void testParseWithInvalidEnumValues() {
-        String csvContent = "customer_id,customer_email,customer_name,subject,description,category\n" +
-                "C001,test@example.com,Test User,Test Subject,This is a test ticket description.,INVALID_CATEGORY";
+        String csvContent = """
+                customer_id,customer_email,customer_name,subject,description,category
+                C001,test@example.com,Test User,Test Subject,This is a test ticket description.,INVALID_CATEGORY""";
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",

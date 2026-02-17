@@ -58,8 +58,7 @@ public class ClassificationServiceImpl implements ClassificationService {
         double confidenceScore = (categoryMatch.getScore() + priorityMatch.getScore()) / 2.0;
 
         // Generate reasoning
-        String reasoning = String.format(
-                "Category: %s (%.0f%% confidence based on keywords: %s). Priority: %s (%.0f%% confidence based on keywords: %s).",
+        String reasoning = "Category: %s (%.0f%% confidence based on keywords: %s). Priority: %s (%.0f%% confidence based on keywords: %s).".formatted(
                 category,
                 categoryMatch.getScore() * 100,
                 String.join(", ", categoryMatch.getKeywords()),

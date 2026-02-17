@@ -203,9 +203,10 @@ class TicketControllerTest {
 
     @Test
     void testImportCsv() throws Exception {
-        String csvContent = "customer_id,customer_email,customer_name,subject,description\n" +
-                "C001,test1@example.com,Test User 1,Test Subject 1,This is a test ticket description for import testing.\n" +
-                "C002,test2@example.com,Test User 2,Test Subject 2,This is another test ticket description for testing.";
+        String csvContent = """
+                customer_id,customer_email,customer_name,subject,description
+                C001,test1@example.com,Test User 1,Test Subject 1,This is a test ticket description for import testing.
+                C002,test2@example.com,Test User 2,Test Subject 2,This is another test ticket description for testing.""";
 
         MockMultipartFile file = new MockMultipartFile(
                 "file",
