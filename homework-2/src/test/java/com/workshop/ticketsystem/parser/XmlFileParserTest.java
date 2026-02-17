@@ -54,9 +54,9 @@ class XmlFileParserTest {
         List<CreateTicketRequest> tickets = xmlFileParser.parse(file);
 
         assertThat(tickets).hasSize(2);
-        assertThat(tickets.get(0).getCustomerId()).isEqualTo("C001");
-        assertThat(tickets.get(0).getCategory()).isEqualTo(TicketCategory.BUG_REPORT);
-        assertThat(tickets.get(0).getPriority()).isEqualTo(TicketPriority.HIGH);
+        assertThat(tickets.getFirst().getCustomerId()).isEqualTo("C001");
+        assertThat(tickets.getFirst().getCategory()).isEqualTo(TicketCategory.BUG_REPORT);
+        assertThat(tickets.getFirst().getPriority()).isEqualTo(TicketPriority.HIGH);
         assertThat(tickets.get(1).getCustomerId()).isEqualTo("C002");
     }
 
@@ -81,7 +81,7 @@ class XmlFileParserTest {
         List<CreateTicketRequest> tickets = xmlFileParser.parse(file);
 
         assertThat(tickets).hasSize(1);
-        CreateTicketRequest ticket = tickets.get(0);
+        CreateTicketRequest ticket = tickets.getFirst();
         assertThat(ticket.getCustomerId()).isEqualTo("C001");
         assertThat(ticket.getCustomerEmail()).isEqualTo("test@example.com");
         assertThat(ticket.getCustomerName()).isEqualTo("Test User");
