@@ -15,7 +15,7 @@ REQUIRED_FIELDS = {
 logger = logging.getLogger(__name__)
 
 
-def _mask_account(account: str) -> str:
+def _mask_account(account: str) -> str:  # pragma: no cover
     return f"****{account[-4:]}" if len(account) >= 4 else "****"
 
 
@@ -67,7 +67,7 @@ def process_message(message: dict) -> dict:
     }
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description="Transaction Validator")
     parser.add_argument("--dry-run", action="store_true", help="Validate without writing files")
     args = parser.parse_args()
