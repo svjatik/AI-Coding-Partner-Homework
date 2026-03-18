@@ -1,6 +1,6 @@
 # AI-Powered Multi-Agent Banking Pipeline
 
-**Created by Sergiy Glushchenko**
+**Created by Sviatoslav Glushchenko**
 
 A 3-agent Python pipeline that validates, scores for fraud risk, and reports on banking transactions using file-based JSON message passing.
 
