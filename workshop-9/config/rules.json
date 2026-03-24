@@ -1,0 +1,25 @@
+{
+  "fraud_detection": {
+    "high_value_threshold": 10000,
+    "very_high_value_threshold": 50000,
+    "unusual_hours_start": 2,
+    "unusual_hours_end": 5
+  },
+  "compliance": {
+    "blocked_currencies": ["XYZ", "ABC"],
+    "aml_reporting_threshold": 10000,
+    "valid_currencies": ["USD", "EUR", "GBP", "JPY", "CAD", "AUD", "CHF", "CNY", "SEK", "NZD"]
+  },
+  "velocity": {
+    "max_transactions_per_hour": 5
+  },
+  "notification": {
+    "alert_on_high_risk": true,
+    "alert_on_rejection": true,
+    "min_risk_level_for_alert": "HIGH"
+  },
+  "limits": {
+    "min_transaction_amount": 0.01,
+    "max_transaction_amount": 1000000
+  }
+}
